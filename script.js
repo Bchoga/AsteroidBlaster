@@ -428,7 +428,7 @@ class Game {
 }
 
 // wait for everything to load before doing anything.
-window.addEventListener("load", function (e) {
+document.addEventListener("DOMContentLoaded", function (e) {
   // create canvas
   const canvas = document.getElementById("canvas");
 
