@@ -212,7 +212,7 @@ class Game {
     this.canvas = canvas;
     this.context = this.canvas.getContext("2d");
     this.pressedKeys = [];
-    this.speed = 10;
+    this.speed = 5;
     this.asteroids = [];
     this.maxAsteroids = 8;
     this.heart = document.getElementById("heart");
@@ -319,7 +319,7 @@ class Game {
     this.context.fillText("Accuracy: " + this.player.accuracy + "%", 20, 50);
 
     //print elapsed time
-    this.context.fillText("Timer: " + this.elapsedTime + " s", 20, 75);
+    this.context.fillText("Time: " + this.elapsedTime + " s", 20, 75);
 
     // display available life
     let x = 20;
