@@ -9,7 +9,10 @@
   --accent: #ffb86b;
 }
 /* disable pull down to refresh esp for mobile browsers */
-html,
+html {
+  overscroll-behavior: none;
+  overflow: hidden;
+}
 body {
   background: var(--bg);
   margin: 0;
@@ -18,8 +21,6 @@ body {
   color: var(--ui);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
     Arial;
-  overscroll-behavior: none;
-  overflow: hidden;
 }
 
 #canvas {
