@@ -1,5 +1,21 @@
+:root {
+  /* Neon Space example — swap values to try other palettes */
+  --bg: #060916;
+  --canvas-bg: #071226;
+  --ship: #60d4ff;
+  --bullet: #bffeff;
+  --ui: #bffeff;
+  --asteroid: #b9a77a;
+  --accent: #ffb86b;
+}
+
 body {
-  background: #242424;
+  background: var(--bg);
+  margin: 0;
+  height: 100%;
+  color: var(--ui);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial;
 }
 
 #canvas {
@@ -9,20 +25,14 @@ body {
   top: 50%;
   left: 50%;
   translate: -50% -50%;
-  background: #242424;
+  background: var(--canvas-bg);
 }
 
+/* hide in-document sprite images */
 #ship1,
 #ship2,
-#ship3 {
-  display: none;
-  background-color: aliceblue;
-}
-
-#asteroid {
-  display: none;
-}
-
+#ship3,
+#asteroid,
 #heart {
   display: none;
 }

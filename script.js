@@ -12,10 +12,10 @@ class Player {
     this.numberOfBullets = 10;
     this.shotsFired = 0;
     this.magazine = [];
-    this.image = document.getElementById("ship1");
+    this.image = document.getElementById("ship2");
     // bottom center position (use game.width / game.height which are CSS pixels)
     this.x = game.width * 0.5 - 0.5 * this.width;
-    this.y = game.height - this.height;
+    this.y = game.height - this.height - 64;
     // bind this to always refer to Game
     this.draw = this.draw.bind(this);
     this.update = this.update.bind(this);
@@ -63,7 +63,8 @@ class Player {
       this.x = this.game.width - 0.5 * this.width;
 
     // vertical stay at bottom
-    this.y = this.game.height - this.height - 64;
+    if (this.y > this.game.height - this.height)
+      this.y = this.y = this.game.height - this.height;
 
     // check colission with asteroid
     // its easier to put this method in asteroid because we wont need a foreach
@@ -83,8 +84,34 @@ class Player {
   }
 
   draw() {
-    // this.context.fillRect(this.x, this.y, this.width, this.height);
-    this.context.drawImage(this.image, this.x, this.y, this.width, this.height);
+    // draw ship image then tint if image is monochrome
+    const x = this.x,
+      y = this.y,
+      w = this.width,
+      h = this.height;
+    this.context.save();
+    this.context.drawImage(this.image, x, y, w, h);
+
+    const shipColor =
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--ship")
+        .trim() || "#60d4ff";
+
+    this.context.globalCompositeOperation = "source-atop";
+    this.context.fillStyle = shipColor;
+    this.context.fillRect(x, y, w, h);
+    this.context.globalCompositeOperation = "source-over";
+
+    // small glow for player
+    this.context.shadowColor = shipColor;
+    this.context.shadowBlur = 18;
+    // draw a faint circle under ship to imply thrust
+    this.context.fillStyle = shipColor + "33"; // semi-transparent
+    this.context.beginPath();
+    this.context.ellipse(x + w / 2, y + h + 24, 8, w * 0.4, 0, 0, Math.PI * 2);
+    this.context.fill();
+
+    this.context.restore();
   }
 }
 
@@ -106,9 +133,20 @@ class Bullet {
 
   draw() {
     this.context.save();
-    this.context.fillStyle = "white";
-    this.context.strokeStyle = "white";
+
+    // read color from CSS variable (fallback)
+    const bulletColor =
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--bullet")
+        .trim() || "#bffeff";
+
+    // subtle glow
+    this.context.shadowColor = bulletColor;
+    this.context.shadowBlur = 12;
+
+    this.context.fillStyle = bulletColor;
     this.context.fillRect(this.x, this.y, this.width, this.height);
+
     this.context.restore();
   }
 
@@ -164,7 +202,7 @@ class Asteroid {
     this.game.player.magazine.forEach((bullet) => {
       if (bullet.busy && this.game.checkCollision(this, bullet)) {
         bullet.reset();
-        this.game.player.score++;
+        if (this.game.player.life > 0) this.game.player.score++;
 
         if (this.life-- <= 1) {
           this.reset();
@@ -215,10 +253,8 @@ class Game {
     this.speed = 5;
     this.asteroids = [];
     this.maxAsteroids = 8;
+    this.comment = "";
     this.heart = document.getElementById("heart");
-
-    this.context.fillStyle = "white";
-    this.context.strokeStyle = "white";
 
     // for tracking touch events
     this.touchId = 0;
@@ -306,12 +342,79 @@ class Game {
     });
   }
 
+  writeScoreComment() {
+    const s = this.player.score;
+
+    // tiered score message
+    let scoreMsg;
+    if (s === 0) scoreMsg = "You didn't hit anything.\n";
+    else if (s < 20) scoreMsg = "Few hits.\n";
+    else if (s < 50) scoreMsg = "A decent start.\n";
+    else if (s < 100) scoreMsg = "Good run.\n";
+    else scoreMsg = "Fantastic score!\n";
+
+    this.context.fillText(
+      scoreMsg,
+      this.canvas.clientWidth / 2,
+      this.canvas.clientHeight / 2 + 48
+    );
+  }
+  writeAccuracyComment() {
+    const a = Math.round(this.player.accuracy);
+
+    // accuracy message
+    let accMsg;
+    if (a < 40) accMsg = "Accuracy is low.";
+    else if (a < 60) accMsg = "Accuracy could improve.";
+    else if (a < 80) accMsg = "Nice accuracy.";
+    else accMsg = "Pinpoint accuracy!";
+
+    this.context.fillText(
+      accMsg,
+      this.canvas.clientWidth / 2,
+      this.canvas.clientHeight / 2 + 66
+    );
+  }
+  writeTimeComment() {
+    const t = this.elapsedTime;
+
+    // survival/time message
+    let timeMsg;
+    if (t < 30) timeMsg = "Very short run.";
+    else if (t < 120) timeMsg = "Good survival time.";
+    else timeMsg = "Long run";
+
+    this.context.fillText(
+      timeMsg,
+      this.canvas.clientWidth / 2,
+      this.canvas.clientHeight / 2 + 84
+    );
+  }
+  writeEfficiencyComment() {
+    const s = this.player.score;
+    const shots = this.player.shotsFired || 0;
+    const hitRate = shots ? s / shots : 0;
+
+    // small note about efficiency
+    let efficiencyMsg = "";
+    if (shots > 0) {
+      if (hitRate < 0.2)
+        efficiencyMsg = " Try to conserve ammo and aim better.";
+      else if (hitRate > 0.6) efficiencyMsg = " Great shot economy!";
+      this.context.fillText(
+        efficiencyMsg,
+        this.canvas.clientWidth / 2,
+        this.canvas.clientHeight / 2 + 102
+      );
+    }
+  }
+
   writeStatus() {
     this.context.save();
 
     // print score
     this.context.font = "bold 18px Impact";
-    this.context.fillStyle = "#1e88c5";
+    this.context.fillStyle = "#7ef9ff";
     this.context.textAlign = "left";
     this.context.fillText("Score: " + this.player.score, 20, 25);
 
@@ -331,14 +434,22 @@ class Game {
 
     if (this.player.life < 1) {
       // print game over
-      this.context.font = "48px Impact bold";
-      this.context.fillStyle = "white";
+      this.context.font = "32px Impact";
+      this.context.fillStyle = "#ffb86b";
       this.context.textAlign = "center";
       this.context.fillText(
-        "Ship Destroyed!",
+        "Game Over!",
         this.canvas.clientWidth / 2,
         this.canvas.clientHeight / 2
       );
+
+      // print comment
+      this.context.font = "bold 16px Impact";
+      this.context.fillStyle = "white";
+      this.writeScoreComment();
+      this.writeAccuracyComment();
+      this.writeTimeComment();
+      this.writeEfficiencyComment();
     }
     this.context.restore();
   }
@@ -352,9 +463,10 @@ class Game {
 
     // calculate player accuracy it works best if we do it here!
     if (this.player.shotsFired > 0)
-      this.player.accuracy = Math.floor(
-        (this.player.score / this.player.shotsFired) * 100
-      );
+      if (this.player.life > 0)
+        this.player.accuracy = Math.floor(
+          (this.player.score / this.player.shotsFired) * 100
+        );
 
     // draw player
     this.player.update();
