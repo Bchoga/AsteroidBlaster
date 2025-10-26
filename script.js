@@ -91,24 +91,11 @@ class Player {
       y = this.y,
       w = this.width,
       h = this.height;
-    this.context.save();
     this.context.drawImage(this.image, x, y, w, h);
 
-    const shipColor =
-      getComputedStyle(document.documentElement)
-        .getPropertyValue("--ship")
-        .trim() || "#60d4ff";
-
-    this.context.globalCompositeOperation = "source-atop";
-    this.context.fillStyle = shipColor;
-    this.context.fillRect(x, y, w, h);
-    this.context.globalCompositeOperation = "source-over";
-
-    // small glow for player
-    this.context.shadowColor = shipColor;
-    this.context.shadowBlur = 18;
     // draw a faint circle under ship to imply thrust
-    this.context.fillStyle = shipColor + "33"; // semi-transparent
+    this.context.save();
+    this.context.fillStyle = "#60d4ff" + "33"; // semi-transparent
     this.context.beginPath();
     this.context.ellipse(x + w / 2, y + h + 24, 8, w * 0.4, 0, 0, Math.PI * 2);
     this.context.fill();
@@ -135,18 +122,7 @@ class Bullet {
 
   draw() {
     this.context.save();
-
-    // read color from CSS variable (fallback)
-    const bulletColor =
-      getComputedStyle(document.documentElement)
-        .getPropertyValue("--bullet")
-        .trim() || "#bffeff";
-
-    // subtle glow
-    this.context.shadowColor = bulletColor;
-    this.context.shadowBlur = 12;
-
-    this.context.fillStyle = bulletColor;
+    this.context.fillStyle = "#bffeff";
     this.context.fillRect(this.x, this.y, this.width, this.height);
 
     this.context.restore();
@@ -236,29 +212,13 @@ class Asteroid {
       y = this.y,
       w = this.width,
       h = this.height;
-    this.context.save();
     this.context.drawImage(this.image, x, y, w, h);
-
-    const shipColor =
-      getComputedStyle(document.documentElement)
-        .getPropertyValue("--asteroid")
-        .trim() || "#b9a77a";
-
-    this.context.globalCompositeOperation = "source-atop";
-    this.context.fillStyle = shipColor;
-    this.context.fillRect(x, y, w, h);
-    this.context.globalCompositeOperation = "source-over";
   };
 
   playExplosion = () => {
     this.explosionSound.currentTime = 0;
     this.explosionSound.play();
   };
-}
-
-class AsteroidSpawner {
-  constructor() {}
-  generateAsteroid() {}
 }
 
 class Game {
