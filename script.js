@@ -230,8 +230,22 @@ class Asteroid {
     this.life = 1;
   };
   draw = () => {
-    // this.context.fillRect(this.x, this.y, this.width, this.height);
-    this.context.drawImage(this.image, this.x, this.y, this.width, this.height);
+    const x = this.x,
+      y = this.y,
+      w = this.width,
+      h = this.height;
+    this.context.save();
+    this.context.drawImage(this.image, x, y, w, h);
+
+    const shipColor =
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--asteroid")
+        .trim() || "#b9a77a";
+
+    this.context.globalCompositeOperation = "source-atop";
+    this.context.fillStyle = shipColor;
+    this.context.fillRect(x, y, w, h);
+    this.context.globalCompositeOperation = "source-over";
   };
 
   playExplosion = () => {

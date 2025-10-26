@@ -8,6 +8,11 @@
   --asteroid: #b9a77a;
   --accent: #ffb86b;
 }
+/* disable pull down to refresh esp for mobile browsers */
+html,
+body {
+  overscroll-behavior: none;
+}
 
 body {
   background: var(--bg);
