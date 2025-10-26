@@ -11,16 +11,13 @@
 /* disable pull down to refresh esp for mobile browsers */
 html,
 body {
-  overscroll-behavior: none;
-}
-
-body {
   background: var(--bg);
   margin: 0;
   height: 100%;
   color: var(--ui);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
     Arial;
+  overscroll-behavior: none;
 }
 
 #canvas {
