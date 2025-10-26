@@ -62,9 +62,11 @@ class Player {
     else if (this.x > this.game.width - 0.5 * this.width)
       this.x = this.game.width - 0.5 * this.width;
 
-    // vertical stay at bottom
+    // vertical stay within bounds
     if (this.y > this.game.height - this.height)
       this.y = this.y = this.game.height - this.height;
+
+    if (this.y < 0) this.y = 0;
 
     // check colission with asteroid
     // its easier to put this method in asteroid because we wont need a foreach
